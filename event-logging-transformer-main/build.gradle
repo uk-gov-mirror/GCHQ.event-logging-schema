@@ -108,28 +108,6 @@ def getSchemaFileForValidation = {
     return schemas[0]
 }
 
-//tasks.register('validateExampleXmlAgainstSchema') {
-//    dependsOn runShadow
-//    doLast {
-//        def schemaFile = getSchemaFileForValidation()
-//        if (!schemaFile.exists()) {
-//            throw new GradleException("Schema ${schemaFile} does not exist")
-//        }
-//        def absExamplesDir = project.file(EXAMPLE_XML_DIR).absolutePath
-//
-//        def execResult = exec() {
-//            //xmlint is available in libxml2-utils
-//            executable '../validateExampleXml.sh'
-//            args schemaFile.absolutePath, absExamplesDir
-//            ignoreExitValue true
-//        }
-//
-//        if (execResult.exitValue != 0) {
-//            throw new GradleException("XML file ${xmlFilePath} failed vaildation, or 'xmllint' (in 'libxml2-utils' pkg) is not installed ")
-//        }
-//    }
-//}
-
 // Validate any XML files found in EXAMPLE_XML_DIR (or sub directories of it) against the
 // non-client generated schema. This is to ensure that the examples are kept up to date
 // and to highlight breaking changes
@@ -167,12 +145,8 @@ tasks.build.dependsOn validateExampleXmlAgainstSchema
 
 tasks.compileJava.dependsOn validateSchemaVersions
 
-//list to hold details of any failed test classes
-//def failedTestReportFiles = []
-
 // 1. Create a lazy FileCollection to collect XML output directories
 def testXmlOutputs = objects.fileCollection()
-//def testXmlOutputs = []
 
 tasks.withType(Test).configureEach { testTask ->
     useJUnitPlatform()
@@ -188,7 +162,6 @@ tasks.withType(Test).configureEach { testTask ->
 
     // Lazily attach this task's report output directory property
     testXmlOutputs.from({ testTask.reports.junitXml.outputLocation.orNull?.asFile })
-//    testXmlOutputs.from(testTask.reports.junitXml.outputLocation.asFile)
     testXmlOutputs.builtBy(testTask)
 
     // Automatically run the aggregator after tests execute
@@ -226,7 +199,7 @@ tasks.register('processFailedTestReports') {
                         def testCaseName = testCaseElm.@name
 
                         testCaseElm.failure.each { failureElm ->
-                            def message = failureElm.@message
+//                            def message = failureElm.@message
                             def failureText = failureElm.text().trim()
 
                             println "  Test Case:       ${testCaseName}"
@@ -241,7 +214,6 @@ tasks.register('processFailedTestReports') {
                         println "  System Out (${className}):\n${sysOut}"
                     }
                     println "--------------------------------------------------------------------------------"
-
                 }
             }
         }
